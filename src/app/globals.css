@@ -2,7 +2,12 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #000000; /* Changed to black for better contrast */
+  --foreground: #1f2937; /* Dark gray for better readability */
+  --muted: #6b7280;
+  --muted-foreground: #9ca3af;
+  --border: #e5e7eb;
+  --card: #ffffff;
+  --card-foreground: #1f2937;
 }
 
 @theme inline {
@@ -15,7 +20,12 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ffffff; /* Changed to white for better contrast */
+    --foreground: #f9fafb; /* Light gray for better readability */
+    --muted: #4b5563;
+    --muted-foreground: #9ca3af;
+    --border: #374151;
+    --card: #111827;
+    --card-foreground: #f9fafb;
   }
 }
 
