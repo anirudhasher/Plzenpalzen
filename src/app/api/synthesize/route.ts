@@ -1,13 +1,15 @@
 import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('OpenAI API key is not configured');
+// Initialize OpenAI client only when needed
+function getOpenAIClient() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OpenAI API key is not configured');
+  }
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 }
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const openai = getOpenAIClient();
     const response = await openai.audio.speech.create({
       model: 'tts-1',
       voice: voice,
