@@ -380,7 +380,7 @@ export default function Home() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Target Language:</span>
+              <span className="text-sm text-gray-900 dark:text-gray-100">Target Language:</span>
               <select 
                 value={selectedLanguage} 
                 onChange={(e) => setSelectedLanguage(e.target.value)}
@@ -407,7 +407,7 @@ export default function Home() {
               </Button>
             </div>
             
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-center text-sm text-gray-900 dark:text-gray-100">
               {isListening ? 'Listening...' : isProcessing ? 'Processing...' : 'Tap to speak'}
             </div>
             
@@ -424,7 +424,7 @@ export default function Home() {
             )}
             
             <div className="space-y-2">
-              <div className="text-sm font-medium text-gray-700">Quick Replies:</div>
+              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">Quick Replies:</div>
               <div className="flex flex-wrap gap-2">
                 {quickReplies.map((reply, idx) => (
                   <Button
@@ -450,7 +450,7 @@ export default function Home() {
           <CardContent>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {conversation.length === 0 ? (
-                <div className="text-center text-gray-500 text-sm">
+                <div className="text-center text-gray-900 dark:text-gray-100 text-sm">
                   Start speaking to begin conversation
                 </div>
               ) : (
@@ -463,7 +463,7 @@ export default function Home() {
                     </div>
                     <div>{msg.text}</div>
                     {msg.translation && (
-                      <div className="text-xs text-gray-600 mt-1">
+                      <div className="text-xs text-gray-900 dark:text-gray-100 mt-1">
                         Translation: {msg.translation}
                       </div>
                     )}
