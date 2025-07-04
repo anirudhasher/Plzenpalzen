@@ -11,10 +11,13 @@
 
 # Environment variables for hybrid deployment
 [context.production.environment]
-  NEXT_PUBLIC_REALTIME_SERVER_URL = "ws://your-server-ip:3001"
+  # NEXT_PUBLIC_REALTIME_SERVER_URL - Set this in Netlify dashboard environment variables
   # OPENAI_API_KEY - Set this in Netlify dashboard environment variables
 
 [context.deploy-preview.environment]
+  NEXT_PUBLIC_REALTIME_SERVER_URL = "ws://localhost:3001"
+
+[context.branch-deploy.environment]
   NEXT_PUBLIC_REALTIME_SERVER_URL = "ws://localhost:3001"
 
 # Headers for better security
