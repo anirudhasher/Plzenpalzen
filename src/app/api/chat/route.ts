@@ -1,15 +1,5 @@
-import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Initialize OpenAI client only when needed
-function getOpenAIClient() {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OpenAI API key is not configured');
-  }
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-}
+import { getOpenAIClient, handleOpenAIError, optimizeMaxTokens } from '@/lib/openai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,12 +19,15 @@ export async function POST(request: NextRequest) {
     ];
 
     const openai = getOpenAIClient();
+    const maxTokens = optimizeMaxTokens(messages, 16384); // gpt-4o-mini has 16K context
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini', // More efficient than gpt-3.5-turbo
       messages: messages,
-      max_tokens: 150,
+      max_tokens: maxTokens, // Dynamically calculated based on context
       temperature: 0.7,
       stream: true,
+      presence_penalty: 0.1, // Encourage diverse responses
+      frequency_penalty: 0.1, // Reduce repetition
     });
 
     const encoder = new TextEncoder();
@@ -42,41 +35,62 @@ export async function POST(request: NextRequest) {
       async start(controller) {
         try {
           let fullReply = '';
+          let hasStarted = false;
           
           for await (const chunk of response) {
+            if (!hasStarted) {
+              hasStarted = true;
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ started: true })}\n\n`));
+            }
+            
             const content = chunk.choices[0]?.delta?.content || '';
             if (content) {
               fullReply += content;
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content, fullReply })}\n\n`));
+            }
+            
+            // Check for finish reason
+            const finishReason = chunk.choices[0]?.finish_reason;
+            if (finishReason === 'length') {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ 
+                warning: 'Response was truncated due to length limit' 
+              })}\n\n`));
+            } else if (finishReason === 'content_filter') {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ 
+                error: 'Content filtered by safety system' 
+              })}\n\n`));
             }
           }
           
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, fullReply })}\n\n`));
           controller.close();
         } catch (error) {
-          controller.error(error);
+          console.error('Streaming error:', error);
+          const { message } = handleOpenAIError(error);
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: message })}\n\n`));
+          controller.close();
         }
       },
+      cancel() {
+        console.log('Stream cancelled by client');
+      }
     });
 
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type',
       },
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    if (error instanceof Error && error.message.includes('API key')) {
-      return NextResponse.json(
-        { error: 'OpenAI API key is not configured' },
-        { status: 500 }
-      );
-    }
+    const { message, status } = handleOpenAIError(error);
     return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
+      { error: message },
+      { status }
     );
   }
 }

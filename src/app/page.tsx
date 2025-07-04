@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import memoryManager from "@/lib/memory";
+import { ConnectionStatus } from "@/components/ConnectionStatus";
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -377,6 +378,15 @@ export default function Home() {
         <Card className="mb-4">
           <CardHeader>
             <CardTitle className="text-center">CloneLingua</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ConnectionStatus />
+          </CardContent>
+        </Card>
+        
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="text-center">Voice Translation</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">

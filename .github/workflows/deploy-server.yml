@@ -1,0 +1,50 @@
+name: Deploy Server to Railway
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'server/**'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'server/package-lock.json'
+        
+    - name: Install server dependencies
+      working-directory: ./server
+      run: npm ci
+      
+    - name: Test server
+      working-directory: ./server
+      run: |
+        # Basic syntax check
+        node -c index.js
+        echo "Server syntax check passed"
+        
+    - name: Deploy to Railway
+      uses: railway-app/railway-action@v1
+      with:
+        api-key: ${{ secrets.RAILWAY_API_KEY }}
+        command: deploy
+        service: clonelingua-server
+      env:
+        RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+        
+    - name: Health Check
+      run: |
+        echo "Waiting for deployment to be healthy..."
+        sleep 30
+        # Add health check once deployed
+        echo "Deployment complete!"

@@ -8,3 +8,27 @@
 [build.environment]
   NODE_VERSION = "18"
   NEXT_PRIVATE_TARGET = "server"
+
+# Environment variables for hybrid deployment
+[context.production.environment]
+  NEXT_PUBLIC_REALTIME_SERVER_URL = "ws://your-server-ip:3001"
+  # OPENAI_API_KEY - Set this in Netlify dashboard environment variables
+
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_REALTIME_SERVER_URL = "ws://localhost:3001"
+
+# Headers for better security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Redirect real-time features to external server (optional)
+[[redirects]]
+  from = "/realtime/*"
+  to = "https://your-realtime-server.com/:splat"
+  status = 200
+  force = true

@@ -1,23 +1,24 @@
-import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Initialize OpenAI client only when needed
-function getOpenAIClient() {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OpenAI API key is not configured');
-  }
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-}
+import { getOpenAIClient, handleOpenAIError, validateTTSText, validateTTSVoice } from '@/lib/openai';
 
 export async function POST(request: NextRequest) {
   try {
     const { text, voice = 'alloy' } = await request.json();
 
-    if (!text) {
+    // Validate text using centralized validation
+    const textValidation = validateTTSText(text);
+    if (!textValidation.valid) {
       return NextResponse.json(
-        { error: 'No text provided' },
+        { error: textValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Validate voice using centralized validation
+    const voiceValidation = validateTTSVoice(voice);
+    if (!voiceValidation.valid) {
+      return NextResponse.json(
+        { error: voiceValidation.error },
         { status: 400 }
       );
     }
@@ -25,9 +26,10 @@ export async function POST(request: NextRequest) {
     const openai = getOpenAIClient();
     const response = await openai.audio.speech.create({
       model: 'tts-1',
-      voice: voice,
+      voice: voice as 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer',
       input: text,
       response_format: 'mp3',
+      speed: 1.0, // Normal speed
     });
 
     const audioBuffer = await response.arrayBuffer();
@@ -36,19 +38,14 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'audio/mpeg',
         'Content-Length': audioBuffer.byteLength.toString(),
+        'Cache-Control': 'public, max-age=7200', // Cache for 2 hours (longer for static content)
       },
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    if (error instanceof Error && error.message.includes('API key')) {
-      return NextResponse.json(
-        { error: 'OpenAI API key is not configured' },
-        { status: 500 }
-      );
-    }
+    const { message, status } = handleOpenAIError(error);
     return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
+      { error: message },
+      { status }
     );
   }
 }

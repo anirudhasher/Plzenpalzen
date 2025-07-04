@@ -1,15 +1,5 @@
-import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Initialize OpenAI client only when needed
-function getOpenAIClient() {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OpenAI API key is not configured');
-  }
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-}
+import { getOpenAIClient, handleOpenAIError, validateAudioFile } from '@/lib/openai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,28 +13,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate audio file
+    const validation = validateAudioFile(audio);
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: 400 }
+      );
+    }
+
     const openai = getOpenAIClient();
     const transcription = await openai.audio.transcriptions.create({
       file: audio,
       model: 'whisper-1',
-      response_format: 'text',
+      response_format: 'verbose_json', // More detailed response with timing
+      language: 'en', // Specify language for better accuracy
+      timestamp_granularities: ['word'], // Add word-level timestamps
     });
 
     return NextResponse.json({ 
       transcription,
       timestamp: new Date().toISOString()
+    }, {
+      headers: {
+        'Cache-Control': 'private, max-age=3600', // Cache for 1 hour (private cache)
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
     });
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    if (error instanceof Error && error.message.includes('API key')) {
-      return NextResponse.json(
-        { error: 'OpenAI API key is not configured' },
-        { status: 500 }
-      );
-    }
+    const { message, status } = handleOpenAIError(error);
     return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
+      { error: message },
+      { status }
     );
   }
 }
