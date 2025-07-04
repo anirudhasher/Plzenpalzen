@@ -1,28 +1,26 @@
 # CloneLingua 🗣️
 
-A real-time voice translation application built with Next.js, OpenAI APIs, and WebSocket technology.
+A frontend-only voice translation application built with Next.js and OpenAI APIs for Netlify deployment.
 
 ## 🌐 Live Demo
 
 - **Frontend**: https://symphonious-tanuki-04d057.netlify.app
-- **Backend**: Deploy your own server (see deployment section)
 
 ## 🏗️ Architecture
 
-### Hybrid Deployment
-- **Frontend**: Static site on Netlify
-- **Backend**: Self-hosted real-time server
-- **Communication**: HTTP APIs + WebSocket for real-time features
+### Frontend-Only Deployment
+- **Frontend**: Static site on Netlify with direct OpenAI API integration
+- **Communication**: Direct HTTPS calls to OpenAI APIs
+- **No Backend Required**: Simple, secure, and cost-effective
 
 ### Technologies
 - **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Express, Socket.IO
-- **AI**: OpenAI GPT-4o-mini, Whisper, TTS
-- **Real-time**: WebSocket for audio streaming
+- **AI**: OpenAI GPT-4, Whisper, TTS
+- **Deployment**: Netlify static hosting
 
 ## 🚀 Quick Start
 
-### Frontend (Auto-deployed via Netlify)
+### Setup and Development
 ```bash
 # Clone repository
 git clone your-repo-url
@@ -35,45 +33,13 @@ npm install
 npm run dev
 ```
 
-### Backend (Real-time Server)
-```bash
-# Setup server
-./setup-server.sh
-
-# Start development server
-cd server
-npm run dev
-
-# Or use deployment script
-./deploy.sh local
-```
-
 ## 📦 Deployment
 
-### Option 1: Railway (Recommended)
-```bash
-cd server
-./deploy.sh railway
-```
-
-### Option 2: Heroku
-```bash
-cd server
-./deploy.sh heroku
-```
-
-### Option 3: Docker
-```bash
-cd server
-./deploy.sh docker
-```
-
-### Option 4: VPS
-```bash
-cd server
-./deploy.sh vps
-# Follow the generated instructions
-```
+### Netlify (Recommended)
+The application is configured for automatic deployment to Netlify:
+1. Connect your repository to Netlify
+2. Set environment variables in Netlify dashboard
+3. Deploy automatically on push to main branch
 
 ## 🔧 Configuration
 
@@ -82,34 +48,26 @@ cd server
 **Frontend (Netlify)**:
 ```env
 OPENAI_API_KEY=sk-your-key
-NEXT_PUBLIC_REALTIME_SERVER_URL=wss://your-server.com
 ```
 
-**Backend (Server)**:
-```env
-PORT=3001
-NODE_ENV=production
-FRONTEND_URL=https://symphonious-tanuki-04d057.netlify.app
-OPENAI_API_KEY=sk-your-key
-ALLOWED_ORIGINS=https://symphonious-tanuki-04d057.netlify.app
-```
+Set this in your Netlify dashboard under Site Settings > Environment Variables.
 
 ## 🎯 Features
 
 ### Core Features
-- ✅ Real-time voice transcription
-- ✅ Text-to-speech synthesis
+- ✅ Real-time voice transcription via OpenAI Whisper
+- ✅ Text-to-speech synthesis via OpenAI TTS
 - ✅ Multi-language chat interface
-- ✅ WebSocket real-time communication
-- ✅ Optimized OpenAI API usage
+- ✅ Streaming responses from GPT-4
+- ✅ Client-side memory management
+- ✅ Quick reply suggestions
 
-### Real-time Features (WebSocket)
-- ✅ Live audio streaming
-- ✅ Multi-language room support
-- ✅ Connection management
-- ✅ Auto-reconnection
-- 🔄 Voice Activity Detection (planned)
-- 🔄 Real-time translation (planned)
+### Languages Supported
+- 🇹🇭 Thai
+- 🇮🇳 Hindi
+- 🇨🇿 Czech
+- 🇪🇸 Spanish
+- 🇯🇵 Japanese
 
 ## 🛠️ Development
 
@@ -121,41 +79,20 @@ npm run dev              # Start Next.js dev server
 npm run build           # Build for production
 npm run lint            # Run ESLint
 npm run type-check      # Run TypeScript checks
-
-# Backend
-npm run server:dev      # Start server in dev mode
-npm run server:start    # Start server in production
-npm run server:deploy   # Deploy server
-
-# Full setup
-npm run setup           # Setup entire project
 ```
 
 ## 🔄 CI/CD
 
 ### Automatic Deployment
 - **Frontend**: Auto-deploys to Netlify on push to main
-- **Backend**: Deploy manually or via GitHub Actions
+- **Type Checking**: Runs automatically during build
 
-### GitHub Actions
-- ✅ Frontend deployment to Netlify
-- ✅ Server deployment to Railway
-- ✅ Type checking and linting
-- ✅ Health checks
-
-## 🌍 Multi-Platform Support
+## 🌍 Hosting Options
 
 ### Frontend Hosting
 - ✅ Netlify (current)
 - ✅ Vercel (compatible)
 - ✅ GitHub Pages (compatible)
-
-### Backend Hosting
-- ✅ Railway (recommended)
-- ✅ Heroku
-- ✅ DigitalOcean VPS
-- ✅ AWS EC2
-- ✅ Docker containers
 
 ## 🤝 Contributing
 

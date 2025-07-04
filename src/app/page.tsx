@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import memoryManager from "@/lib/memory";
-import { ConnectionStatus } from "@/components/ConnectionStatus";
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -97,18 +96,22 @@ export default function Home() {
     
     try {
       const formData = new FormData();
-      formData.append('audio', audioChunk);
+      formData.append('file', audioChunk, 'audio.webm');
+      formData.append('model', 'whisper-1');
       
-      const response = await fetch('/api/transcribe', {
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
         body: formData,
       });
       
       if (response.ok) {
         const data = await response.json();
-        if (data.transcription && data.transcription.trim()) {
+        if (data.text && data.text.trim()) {
           setLiveTranscription(prev => {
-            const newTranscription = prev + ' ' + data.transcription;
+            const newTranscription = prev + ' ' + data.text;
             return newTranscription.trim();
           });
         }
@@ -126,9 +129,18 @@ export default function Home() {
       const formData = new FormData();
       formData.append('audio', audioBlob);
       
-      const transcribeResponse = await fetch('/api/transcribe', {
+      // Direct OpenAI API call for transcription
+      const transcribeResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: (() => {
+          const formData = new FormData();
+          formData.append('file', audioBlob, 'audio.webm');
+          formData.append('model', 'whisper-1');
+          return formData;
+        })()
       });
       
       if (!transcribeResponse.ok) {
@@ -140,7 +152,7 @@ export default function Home() {
         throw new Error(transcribeData.error);
       }
       
-      const { transcription } = transcribeData;
+      const transcription = transcribeData.text;
       
       // Use live transcription if available, otherwise use final transcription
       const finalText = liveTranscription.trim() || transcription;
@@ -151,18 +163,27 @@ export default function Home() {
       // Clear live transcription
       setLiveTranscription('');
       
-      // 2. Get AI response with streaming
-      const chatResponse = await fetch('/api/chat', {
+      // 2. Get AI response from OpenAI directly
+      const chatResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
         body: JSON.stringify({
-          message: finalText,
-          language: selectedLanguage,
-          conversationHistory: conversation.map(msg => ({
-            role: msg.type === 'user' ? 'user' : 'assistant',
-            content: msg.text
-          })),
-          context: memoryManager.getRelevantContext(selectedLanguage)
+          model: 'gpt-4',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a helpful language assistant. Respond in ${selectedLanguage} and keep responses conversational and natural.`
+            },
+            ...conversation.map(msg => ({
+              role: msg.type === 'user' ? 'user' : 'assistant',
+              content: msg.text
+            })),
+            { role: 'user', content: finalText }
+          ],
+          stream: true
         }),
       });
       
@@ -199,8 +220,8 @@ export default function Home() {
               if (line.startsWith('data: ')) {
                 try {
                   const data = JSON.parse(line.slice(6));
-                  if (data.content) {
-                    fullReply = data.fullReply;
+                  if (data.choices && data.choices[0].delta.content) {
+                    fullReply += data.choices[0].delta.content;
                     // Update the streaming message
                     setConversation(prev => {
                       const newConv = [...prev];
@@ -210,8 +231,7 @@ export default function Home() {
                       return newConv;
                     });
                   }
-                  if (data.done) {
-                    fullReply = data.fullReply;
+                  if (data.choices && data.choices[0].finish_reason) {
                     break;
                   }
                 } catch {
@@ -225,11 +245,18 @@ export default function Home() {
         }
       }
       
-      // 3. Synthesize speech
-      const ttsResponse = await fetch('/api/synthesize', {
+      // 3. Synthesize speech with OpenAI TTS
+      const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullReply }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          voice: 'alloy',
+          input: fullReply
+        }),
       });
       
       if (!ttsResponse.ok) {
@@ -270,17 +297,26 @@ export default function Home() {
     setIsProcessing(true);
     setError(null);
     try {
-      const chatResponse = await fetch('/api/chat', {
+      const chatResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
         body: JSON.stringify({
-          message: reply,
-          language: selectedLanguage,
-          conversationHistory: conversation.map(msg => ({
-            role: msg.type === 'user' ? 'user' : 'assistant',
-            content: msg.text
-          })),
-          context: memoryManager.getRelevantContext(selectedLanguage)
+          model: 'gpt-4',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a helpful language assistant. Respond in ${selectedLanguage} and keep responses conversational and natural.`
+            },
+            ...conversation.map(msg => ({
+              role: msg.type === 'user' ? 'user' : 'assistant',
+              content: msg.text
+            })),
+            { role: 'user', content: reply }
+          ],
+          stream: true
         }),
       });
       
@@ -317,8 +353,8 @@ export default function Home() {
               if (line.startsWith('data: ')) {
                 try {
                   const data = JSON.parse(line.slice(6));
-                  if (data.content) {
-                    fullReply = data.fullReply;
+                  if (data.choices && data.choices[0].delta.content) {
+                    fullReply += data.choices[0].delta.content;
                     // Update the streaming message
                     setConversation(prev => {
                       const newConv = [...prev];
@@ -328,8 +364,7 @@ export default function Home() {
                       return newConv;
                     });
                   }
-                  if (data.done) {
-                    fullReply = data.fullReply;
+                  if (data.choices && data.choices[0].finish_reason) {
                     break;
                   }
                 } catch {
@@ -343,11 +378,18 @@ export default function Home() {
         }
       }
       
-      // Synthesize speech
-      const ttsResponse = await fetch('/api/synthesize', {
+      // Synthesize speech with OpenAI TTS
+      const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullReply }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          voice: 'alloy',
+          input: fullReply
+        }),
       });
       
       if (!ttsResponse.ok) {
@@ -380,7 +422,9 @@ export default function Home() {
             <CardTitle className="text-center">CloneLingua</CardTitle>
           </CardHeader>
           <CardContent>
-            <ConnectionStatus />
+            <div className="text-center text-sm text-primary-600 dark:text-primary-400">
+              Frontend-only OpenAI integration
+            </div>
           </CardContent>
         </Card>
         
