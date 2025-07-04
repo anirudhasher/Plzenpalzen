@@ -1,0 +1,9 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/chat/route": "app/api/chat/route.js",
+  "/api/transcribe/route": "app/api/transcribe/route.js",
+  "/api/synthesize/route": "app/api/synthesize/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/settings/page": "app/settings/page.js",
+  "/page": "app/page.js"
+}
