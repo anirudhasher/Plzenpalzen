@@ -1,0 +1,123 @@
+# Dependencies
+clonelingua-app/node_modules/
+clonelingua-app/.pnp
+clonelingua-app/.pnp.js
+
+# Production
+clonelingua-app/build/
+clonelingua-app/dist/
+clonelingua-app/.next/
+clonelingua-app/out/
+
+# Runtime data
+clonelingua-app/pids
+clonelingua-app/*.pid
+clonelingua-app/*.seed
+clonelingua-app/*.pid.lock
+
+# Coverage directory used by tools like istanbul
+clonelingua-app/coverage/
+clonelingua-app/nyc_output/
+
+# Dependency directories
+clonelingua-app/jspm_packages/
+
+# TypeScript cache
+clonelingua-app/*.tsbuildinfo
+
+# Optional npm cache directory
+clonelingua-app/.npm
+
+# Optional eslint cache
+clonelingua-app/.eslintcache
+
+# Microbundle cache
+clonelingua-app/.rpt2_cache/
+clonelingua-app/.rts2_cache_cjs/
+clonelingua-app/.rts2_cache_es/
+clonelingua-app/.rts2_cache_umd/
+
+# Optional REPL history
+clonelingua-app/.node_repl_history
+
+# Output of 'npm pack'
+clonelingua-app/*.tgz
+
+# Yarn Integrity file
+clonelingua-app/.yarn-integrity
+
+# dotenv environment variables file
+clonelingua-app/.env
+clonelingua-app/.env.local
+clonelingua-app/.env.development.local
+clonelingua-app/.env.test.local
+clonelingua-app/.env.production.local
+
+# parcel-bundler cache (https://parceljs.org/)
+clonelingua-app/.cache
+clonelingua-app/.parcel-cache
+
+# Next.js build output
+clonelingua-app/.next
+clonelingua-app/out
+
+# Nuxt.js build / generate output
+clonelingua-app/.nuxt
+clonelingua-app/dist
+
+# Gatsby files
+clonelingua-app/.cache/
+clonelingua-app/public
+
+# Vuepress build output
+clonelingua-app/.vuepress/dist
+
+# Serverless directories
+clonelingua-app/.serverless/
+
+# FuseBox cache
+clonelingua-app/.fusebox/
+
+# DynamoDB Local files
+clonelingua-app/.dynamodb/
+
+# TernJS port file
+clonelingua-app/.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+clonelingua-app/.vscode-test
+
+# yarn v2
+clonelingua-app/.yarn/cache
+clonelingua-app/.yarn/unplugged
+clonelingua-app/.yarn/build-state.yml
+clonelingua-app/.yarn/install-state.gz
+clonelingua-app/.pnp.*
+
+# Logs
+clonelingua-app/logs
+clonelingua-app/*.log
+clonelingua-app/npm-debug.log*
+clonelingua-app/yarn-debug.log*
+clonelingua-app/yarn-error.log*
+clonelingua-app/lerna-debug.log*
+
+# Runtime and lock files
+clonelingua-app/package-lock.json
+clonelingua-app/yarn.lock
+clonelingua-app/pnpm-lock.yaml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
