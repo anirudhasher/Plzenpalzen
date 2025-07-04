@@ -213,8 +213,8 @@ export function getRealtimeClient(): RealtimeAudioClient {
     // Hybrid deployment: Frontend on Netlify, Backend self-hosted
     let serverUrl = process.env.NEXT_PUBLIC_REALTIME_SERVER_URL || 'ws://localhost:3001';
     
-    // Support custom IP configuration
-    if (process.env.NEXT_PUBLIC_REALTIME_SERVER_IP) {
+    // Only use IP configuration if no full URL is provided
+    if (!process.env.NEXT_PUBLIC_REALTIME_SERVER_URL && process.env.NEXT_PUBLIC_REALTIME_SERVER_IP) {
       const ip = process.env.NEXT_PUBLIC_REALTIME_SERVER_IP;
       const port = process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || '3001';
       const protocol = process.env.NODE_ENV === 'development' ? 'ws' : 'wss';
