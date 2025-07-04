@@ -1,12 +1,19 @@
-import { Server as SocketIOServer } from 'socket.io';
-import { createServer } from 'http';
+import { Server as SocketIOServer, Socket } from 'socket.io';
+import { createServer, Server as HttpServer } from 'http';
 import { NextApiRequest, NextApiResponse } from 'next';
+
+interface ConnectionData {
+  socket: Socket;
+  languages: Set<string>;
+  connected: boolean;
+  lastActivity: number;
+}
 
 // WebSocket server for real-time audio communication
 export class RealtimeAudioServer {
   private io: SocketIOServer;
-  private server: any;
-  private connections = new Map<string, any>();
+  private server: HttpServer;
+  private connections = new Map<string, ConnectionData>();
 
   constructor() {
     this.server = createServer();
@@ -48,7 +55,7 @@ export class RealtimeAudioServer {
         language: string; 
         audioData: ArrayBuffer; 
         timestamp: number;
-        metadata?: any;
+        metadata?: Record<string, unknown>;
       }) => {
         // Broadcast to all clients listening to this language
         socket.to(`language:${data.language}`).emit('audio-stream', {
@@ -90,7 +97,12 @@ export class RealtimeAudioServer {
     });
   }
 
-  private async handleTranslationRequest(socket: any, data: any) {
+  private async handleTranslationRequest(socket: Socket, data: {
+    audioData: ArrayBuffer;
+    sourceLanguage: string;
+    targetLanguage: string;
+    timestamp: number;
+  }) {
     try {
       // This will be implemented when we add OpenAI Realtime API integration
       console.log('Translation request received:', {

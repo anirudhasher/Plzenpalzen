@@ -121,7 +121,7 @@ export function optimizeMaxTokens(messages: Array<{ role: string; content: strin
 
 // Simple request queue for rate limiting
 class RequestQueue {
-  private queue: Array<() => Promise<any>> = [];
+  private queue: Array<() => Promise<unknown>> = [];
   private processing = false;
   private lastRequestTime = 0;
   private minInterval = 100; // Minimum 100ms between requests

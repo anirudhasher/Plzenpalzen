@@ -5,7 +5,7 @@ export interface AudioStreamData {
   language: string;
   audioData: ArrayBuffer;
   timestamp: number;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface TranslationRequest {
@@ -34,7 +34,7 @@ export class RealtimeAudioClient {
   private onDisconnectHandler?: (reason: string) => void;
   private onAudioStreamHandler?: (data: AudioStreamData & { source: string; receivedAt: number }) => void;
   private onTranslationResultHandler?: (result: TranslationResult) => void;
-  private onErrorHandler?: (error: any) => void;
+  private onErrorHandler?: (error: Error | unknown) => void;
 
   constructor(private serverUrl: string = 'ws://localhost:3001') {}
 
@@ -187,7 +187,7 @@ export class RealtimeAudioClient {
     this.onTranslationResultHandler = handler;
   }
 
-  public onError(handler: (error: any) => void): void {
+  public onError(handler: (error: Error | unknown) => void): void {
     this.onErrorHandler = handler;
   }
 
