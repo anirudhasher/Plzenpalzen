@@ -18,9 +18,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [liveTranscription, setLiveTranscription] = useState<string>('');
-  const [isRecording, setIsRecording] = useState(false);
   const audioChunksRef = useRef<Blob[]>([]);
-  const streamProcessorRef = useRef<number | null>(null);
   const [quickReplies, setQuickReplies] = useState<string[]>([
     "Yes, please",
     "No, thank you", 
@@ -72,14 +70,14 @@ export default function Home() {
           await processAudio(blob);
         } finally {
           stream.getTracks().forEach(track => track.stop());
-          setIsRecording(false);
+          // Audio stream stopped
         }
       };
       
       // Start recording with small chunks for real-time processing
       mediaRecorder.start(250); // 250ms chunks
       setIsListening(true);
-      setIsRecording(true);
+      // Audio recording started
     } catch {
       setError('Failed to access microphone. Please check permissions.');
     }
