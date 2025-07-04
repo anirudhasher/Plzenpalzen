@@ -372,7 +372,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-primary-50 p-4">
       <div className="max-w-md mx-auto">
         <Card className="mb-4">
           <CardHeader>
@@ -380,11 +380,11 @@ export default function Home() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-700 dark:text-gray-300">Target Language:</span>
+              <span className="text-sm text-primary-800 dark:text-primary-200">Target Language:</span>
               <select 
                 value={selectedLanguage} 
                 onChange={(e) => setSelectedLanguage(e.target.value)}
-                className="border border-gray-300 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                className="border border-primary-300 rounded px-3 py-2 text-sm bg-primary-50 dark:bg-primary-900 dark:border-primary-600 text-primary-900 dark:text-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 {languages.map(lang => (
                   <option key={lang.code} value={lang.code}>
@@ -407,23 +407,23 @@ export default function Home() {
               </Button>
             </div>
             
-            <div className="text-center text-sm text-gray-700 dark:text-gray-300">
+            <div className="text-center text-sm text-primary-800 dark:text-primary-200">
               {isListening ? 'Listening...' : isProcessing ? 'Processing...' : 'Tap to speak'}
             </div>
             
             {liveTranscription && (
-              <div className="text-center text-sm text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="text-center text-sm text-blue-800 dark:text-blue-200 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
                 <div className="font-medium mb-1">Live Transcription</div>
                 <div className="italic">{liveTranscription}</div>
               </div>
             )}
             
             {error && (
-              <div className="text-center text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
+              <div className="text-center text-sm text-red-800 dark:text-red-200 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
                 <div className="font-medium mb-1">Error</div>
                 <div>{error}</div>
                 {error.includes('API key') && (
-                  <div className="mt-2 text-xs text-red-600 dark:text-red-400">
+                  <div className="mt-2 text-xs text-red-700 dark:text-red-300">
                     Please configure your OpenAI API key in the environment variables (.env.local)
                   </div>
                 )}
@@ -431,7 +431,7 @@ export default function Home() {
             )}
             
             <div className="space-y-2">
-              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Replies:</div>
+              <div className="text-sm font-medium text-primary-800 dark:text-primary-200">Quick Replies:</div>
               <div className="flex flex-wrap gap-2">
                 {quickReplies.map((reply, idx) => (
                   <Button
@@ -457,22 +457,22 @@ export default function Home() {
           <CardContent>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {conversation.length === 0 ? (
-                <div className="text-center text-gray-700 dark:text-gray-300 text-sm">
+                <div className="text-center text-primary-700 dark:text-primary-300 text-sm">
                   Start speaking to begin conversation
                 </div>
               ) : (
                 conversation.map((msg, idx) => (
                   <div key={idx} className={`p-3 rounded-lg text-sm ${
                     msg.type === 'user' 
-                      ? 'bg-blue-50 dark:bg-blue-900/20 ml-8 border-l-4 border-blue-500' 
-                      : 'bg-gray-50 dark:bg-gray-800 mr-8 border-l-4 border-gray-400'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 ml-8 border-l-4 border-blue-500 text-primary-900 dark:text-primary-100' 
+                      : 'bg-neutral-50 dark:bg-neutral-800 mr-8 border-l-4 border-neutral-400 text-primary-900 dark:text-primary-100'
                   }`}>
                     <div className="font-medium">
                       {msg.type === 'user' ? 'You' : 'Them'}:
                     </div>
                     <div>{msg.text}</div>
                     {msg.translation && (
-                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                      <div className="text-xs text-primary-600 dark:text-primary-400 mt-1">
                         Translation: {msg.translation}
                       </div>
                     )}
