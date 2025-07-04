@@ -245,7 +245,7 @@ export function useRealtimeConnection() {
     });
 
     client.onError((error) => {
-      setConnectionError(error.message || 'Connection error');
+      setConnectionError(error instanceof Error ? error.message : 'Connection error');
     });
 
     // Auto-connect
